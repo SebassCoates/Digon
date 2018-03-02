@@ -1,4 +1,3 @@
-# Digon
 ![Digon Logo](logo.png)
 A graph-based programming language for naturally concurrent and well-structured 
 code.
