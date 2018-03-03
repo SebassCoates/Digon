@@ -31,7 +31,7 @@ node median <= (data []int) {
                 }
         }
 
-        data => (length) => length;
+        length <= (length) <= data;
         data[length / 2] => (dest);
 }
 
