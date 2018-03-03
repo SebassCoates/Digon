@@ -1,36 +1,27 @@
-
-
 node root() {
-        initialize_data -> filename;
+        [1,2,3,4,5,6,7,8,9,10] => (initialize_data);
 }
 
-node initialize_data(file) {
-        a = fileioHERE;
-
-        mean -> a;
-        median -> a;
-        mode -> a;
+node initialize_data(data) {
+        data => (mean) => (print_data);
+        data => (median) => (print_data);
+        data => (mode) => (print_data);
 }
 
-
-node mean(a) {
-
-        print_data.0 => val;
+node mean(data) {
+        mean => (child);
 }
 
-node median(a) {
-
-        print_data.1 => val;
+node median(data) {
+        median => (child);
 }
 
-node mode(a) {
-
-        print_data.2 => val;
+node mode(data) {
+        mode => (child);
 }
 
-node print_data(m, med, mod) {
-        { print m; }
-        { print med; }
-        { print mod; }
-        end;
+node print_data(average, median, mode) {
+        average => (print);
+        median => (print);
+        mode => (print); 
 }
