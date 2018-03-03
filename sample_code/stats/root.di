@@ -1,24 +1,24 @@
-node root() {
+node root {
         [1,2,3,4,5,6,7,8,9,10] => (initialize_data);
 }
 
-node (data []int) => initialize_data => (float){
+node initialize_data <= (data []int){
         data => (mean) => (print_data);
         data => (median) => (print_data);
         data => (mode) => (print_data);
 }
 
-node (data []int) => mean => (int){
+node mean <= (data []int) {
         average := 0.0;
         for (i, elem) in data {
                 average += elem;
         }
 
         data => (length) => length;
-        average / length => (child);
+        average / length => (dest);
 }
 
-node (data []int) => median {
+node median <= (data []int) {
         for (i, elem) in data {
                 for j in range data[i:1:-1] {
                         if data[j] < data[j - 1] {
@@ -32,10 +32,10 @@ node (data []int) => median {
         }
 
         data => (length) => length;
-        data[length / 2] => (child);
+        data[length / 2] => (dest);
 }
 
-node (data []int) => mode => (int) {
+node mode <= (data []int) {
         m := map<int, int>;
 
         for (index, elem) in data {
@@ -56,10 +56,10 @@ node (data []int) => mode => (int) {
                 }
         }
 
-        mode => (child);
+        mode => (dest);
 }
 
-node (average float, median int, mode int) => print_data {
+node print_data <= (average float, median int, mode int){
         average => (print);
         median => (print);
         mode => (print); 
