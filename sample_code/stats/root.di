@@ -2,7 +2,7 @@ node root {
         [1,2,3,4,5,6,7,8,9,10] => (initialize_data);
 }
 
-node initialize_data <= (data []int){
+node calculate_stats <= (data []int){
         data => (mean) => (print_data);
         data => (median) => (print_data);
         data => (mode) => (print_data);
