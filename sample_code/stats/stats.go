@@ -10,15 +10,20 @@ func main() {
 }
 
 func calculate_stats(array [10]int) {
-        channel := make(chan int)
-	mean(array, channel)
-}
-
-func mean(array [10]int, channel chan int) {
+        meanChannel := make(chan float64)
         medChannel := make(chan int)
         modeChannel := make(chan int)
-	go median(array, medChannel)
-	go mode(array, modeChannel)
+	go mean(array, meanChannel)
+        go median(array, medChannel)
+        go mode(array, modeChannel)
+        print_array(meanChannel, medChannel, modeChannel)
+}
+
+func mean(array [10]int, channel chan float64) {
+        //medChannel := make(chan int)
+        //modeChannel := make(chan int)
+	//go median(array, medChannel)
+	//go mode(array, modeChannel)
 
 	var average float64 = 0.0
 	for _, elem := range array {
@@ -26,7 +31,9 @@ func mean(array [10]int, channel chan int) {
 	}
 	average /= float64(len(array))
 
-	print_array(average, <-medChannel, <-modeChannel)
+        channel <- average
+
+	//print_array(average, <-medChannel, <-modeChannel)
 }
 
 func median(array [10]int, channel chan int) {
@@ -69,8 +76,11 @@ func mode(array [10]int, channel chan int) {
         channel <- mode
 }
 
-func print_array(average float64, median int, mode int) {
-	fmt.Printf("The average is %f\n", average)
-	fmt.Printf("The median is %d\n", median)
-	fmt.Printf("The mode is %d\n", mode)
+func print_array(meanChannel chan float64, medChannel chan int, modeChannel chan int) {
+
+	//print_array(average, <-medChannel, <-modeChannel)
+
+	fmt.Printf("The average is %f\n", <-meanChannel)
+	fmt.Printf("The median is %d\n", <-medChannel)
+	fmt.Printf("The mode is %d\n", <-modeChannel)
 }
