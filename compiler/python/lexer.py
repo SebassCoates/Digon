@@ -30,17 +30,35 @@ from errors import *
 
 
 ############################### LEXER VARAIBLES ################################
+symbols   = {""}
+types     = {"int", "bool", "char", "byte"}
+keywords  = {}
+states    = ["NEW_LINE", "READ_KEYWORD", "READ_TYPE"]
+state     = 0
+
+###Used During Lexing
+variables = {}
 
 
 ################################## INTERFACE ###################################
 
 # Lexes file, reports warnings and errors.
 # Params:
-#       fileText - plaintext of file as list of strings
+#       fileText - plaintext of file as string
 # 
 # Returns: 
 #       lexed - lexed plaintext as list of tokens (tokens are strings)
 #
 def lex(fileText):
-    lexed = fileText
+    lexed = []
+    currentToken = ""
+
+    for char in fileText:
+        #append to current token
+        #check if state change
+                #check if valid state change
+                #handle state change or print warning/error
+                #update lexed list with appropriate token
+
+
     return lexed

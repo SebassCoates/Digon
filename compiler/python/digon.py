@@ -42,7 +42,7 @@ import errors as err
 #
 def process_file(filename):
     try:
-        filetext = open(filename, 'r').read() 
+        filetext = open(filename, 'r').read()
     except:
         err.invalid_file(filename)
 

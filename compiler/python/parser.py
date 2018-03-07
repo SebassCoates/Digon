@@ -31,11 +31,9 @@ from node   import *
 
 
 ############################## PARSER VARAIBLES ################################
-symbols   = {}
-types     = {}
-keywords  = {}
-variables = {}
- 
+###Constants
+
+###Used During Lexing
 
 ################################## INTERFACE ###################################
 
