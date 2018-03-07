@@ -5,8 +5,8 @@
 #                                                                              #
 #  Created by Sebastian Coates and John Tagliaferro at Tufts University.       #
 #                                                                              #
-#  digon.py                                                                    #
-#  Compiles Digon source code to Go, runs Go compiler to generate executable.  #
+#  lexer.py                                                                    #
+#  Code for lexing Digon source files.                                         #
 #                                                                              #
 #  Copyright 2018 Sebastian Coates and John Tagliaferro.                       #
 #                                                                              #
@@ -24,41 +24,15 @@
 #  along with Digon.  If not, see <http://www.gnu.org/licenses/>.              #
 ################################################################################
 
-from sys import argv #command line args
-from node import *   #node definition
-from ccfg import *   #CCFG definition
-from lexer import lex
-from parser import parse
-import errors as err
+from errors import *
 
-
-# Processes file to be ready for compilation. Takes lexed, parsed, filetext and
-# converts to CCFG representation.
+# Lexes file, reports warnings and errors.
 # Params:
-#       filename - path to .di source code file
+#       fileText - plaintext of file as list of strings
 # 
 # Returns: 
-#       Parsed file in CCFG form
+#       lexed - lexed plaintext as list of tokens (tokens are strings)
 #
-def process_file(filename):
-    try:
-        filetext = open(filename, 'r').read() 
-    except:
-        err.invalid_file(filename)
-
-    processed = parse(lex(filetext))
-    
-    ccfg = processed
-    return ccfg
-
-
-################################### MAIN #######################################
-parsedFiles = {}
-
-for filename in argv[1:]:
-    if '.di' not in filename:
-        err.invalid_file_extension(filename)
-
-    parsedFiles[filename] = process_file(filename) 
-
-err.quit_if_error()
+def lex(fileText):
+    lexed = fileText
+    return lexed
