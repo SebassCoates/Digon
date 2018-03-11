@@ -26,22 +26,70 @@
 
 from errors import *
 
-############################## PRIVATE FUNCTIONS ###############################
+############################### CONST VARAIBLES ################################
+symbols    = {":", "=", "<", ">", "{", "}", "[", "]", "(", ")", ";", "-", "+", \
+"/", "*", "."}
+types      = {"node", "int", "bool", "char", "byte"}
+keywords   = {"for", "while", "in"}
+states     = ["READING", "READ_KEYWORD", "READ_TYPE", "READ_WHITESPACE"]
 
+
+
+############################## PRIVATE FUNCTIONS ###############################
+def safe_split(stringLines):
+        wordsByLine = []
+        readingString = False
+        readQuote = False
+        readApost = False
+
+        newWord = ""
+        for line in stringLines:
+                words = []
+                for char in line:
+                        if char == '"':
+                                if readQuote and not readApost:
+                                        readingString = False
+                                else:
+                                        readingString = True
+
+                                readQuote = not readQuote
+
+                        elif char == "'":
+                                if readApost and not readQuote:
+                                        readingString = False
+                                else:
+                                        readingString = True
+
+                                readApost = not readApost
+
+                        if not readingString and char.strip() == "":
+                                if not newWord.strip() == "":
+                                        words.append(newWord)
+                                        newWord = ""
+                        else:
+                                newWord += char
+
+                if not newWord.strip() == "":
+                        words.append(newWord)
+                        newWord = ""
+
+                wordsByLine.append(words)
+
+        return wordsByLine
+
+def is_type(token):
+        return token in types
+
+def update_state(prevState, prevToken, char):
+
+        return prevState, prevToken + char, None
 
 ############################### LEXER VARAIBLES ################################
-symbols   = {""}
-types     = {"int", "bool", "char", "byte"}
-keywords  = {}
-states    = ["NEW_LINE", "READ_KEYWORD", "READ_TYPE"]
-state     = 0
-
-###Used During Lexing
-variables = {}
-
+parenStack = []
+bracketStack = []
+braceStack = []
 
 ################################## INTERFACE ###################################
-
 # Lexes file, reports warnings and errors.
 # Params:
 #       fileText - plaintext of file as string
@@ -50,15 +98,22 @@ variables = {}
 #       lexed - lexed plaintext as list of tokens (tokens are strings)
 #
 def lex(fileText):
-    lexed = []
-    currentToken = ""
+        lexed = []
+        splitLines = fileText.split("\n") 
+        splitWords = safe_split(splitLines) #removes whitespace, keeps in strings
+        token = ""
+        state = ""
 
-    for char in fileText:
-        #append to current token
-        #check if state change
-                #check if valid state change
-                #handle state change or print warning/error
-                #update lexed list with appropriate token
+        for lineIndex in range(len(splitWords)):
+                line = splitWords[lineIndex]
+                for word in line:
+                        for char in word:
+                                state, token, err = update_state(state, token, char)
+                                if err is not None:
+                                        print("ERROR")
 
+                        lexed.append(token)
+                        token = ""
 
-    return lexed
+        print(lexed)
+        return lexed
