@@ -52,7 +52,10 @@ def invalid_file(filepath):
 #       warnType - type of warning (determines which message to print)
 # 
 def compile_warning(lineNumber, warnType):
+    global warnCount
     warnCount += 1
+
+    print("Warning at line " + str(lineNumber) + ":\n\t" + warnType + "\n")
 
 # Prints error message.
 # Params:
@@ -60,7 +63,10 @@ def compile_warning(lineNumber, warnType):
 #       errorType - type of error (determines which message to print)
 # 
 def compile_error(lineNumber, errorType):
+    global errorCount
     errorCount += 1
+
+    print("Error at line " + str(lineNumber) + ":\n\t" + errorType + "\n")
 
 # Quits program if any errors occurred during compilation.
 def quit_if_error():
