@@ -45,6 +45,8 @@ def parse(lexedFile):
 
     #print lexedFile;
     
+    names = [];
+
     nodes = [];
     indices = [i for i, x in enumerate(lexedFile) if x == "node"];
 
@@ -55,6 +57,7 @@ def parse(lexedFile):
     for i in range(len(indices) - 1):
         n = indices[i];
         nod = create_node(lexedFile[n + 1]);
+        names.append(nod.name);
         
         
         if lexedFile[n + 2] == "<":        # node has params
@@ -79,15 +82,38 @@ def parse(lexedFile):
             nod.params = params;
         else:
             nod.params = "";
+            n += 3;
+        #nod.sourceCode = ' '.join(lexedFile[n:indices[i + 1] - 1]);
+        nod.sourceCode = lexedFile[n:indices[i + 1] - 1];
+
         nodes.append(nod);
+
+
         
-        
+    for nod in nodes:
+        li = nod.sourceCode;
+        neighbors = [];
+        i = 0;
+        while i < len(li):
+            if li[i] == "=" and li[i + 1] == ">" and li[i + 2] == "(" and li[i + 4] == ")":
+                neighbors.append(li[i + 3]);
+                i += 5;
+            i += 1;
+        nod.neighbors = neighbors;
+
+
+
+
 
             
     for nod in nodes:
+        print "name";
         print nod.name;
+        print "params";
         print nod.params;
+        print "sc";
+        print nod.sourceCode;
+        print "neighbors";
+        print nod.neighbors;
     
-
-    parsed = lexedFile
-    return parsed
+    return nodes;
