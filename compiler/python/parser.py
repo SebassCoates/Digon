@@ -106,14 +106,14 @@ def parse(lexedFile):
 
 
             
-    for nod in nodes:
-        print "name";
-        print nod.name;
-        print "params";
-        print nod.params;
-        print "sc";
-        print nod.sourceCode;
-        print "neighbors";
-        print nod.neighbors;
+    #for nod in nodes:
+    #    print "name";
+    #    print nod.name;
+    #    print "params";
+    #    print nod.params;
+    #    print "sc";
+    #    print nod.sourceCode;
+    #    print "neighbors";
+    #    print nod.neighbors;
     
     return nodes;
