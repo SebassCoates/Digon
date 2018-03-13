@@ -37,8 +37,15 @@ from node   import *
 
 
 def parse(lexedFile):
-   
-    nod = create_node("name");
+    
+    #print lexedFile;
+
+
+    lexedFile =  [j for i in lexedFile for j in i];
+
+    #print lexedFile;
+    
+    nodes = [];
     indices = [i for i, x in enumerate(lexedFile) if x == "node"];
 
     length = len(lexedFile);
@@ -47,11 +54,11 @@ def parse(lexedFile):
 
     for i in range(len(indices) - 1):
         n = indices[i];
-        nod.name = lexedFile[n + 1]
+        nod = create_node(lexedFile[n + 1]);
         
         
-        if lexedFile[n + 2] == "<=":        # node has params
-            paramS = n + 4;                 # strt of params
+        if lexedFile[n + 2] == "<":        # node has params
+            paramS = n + 5;                 # strt of params
             params = [];
             end = lexedFile[paramS:].index(")");        # where params end
 
@@ -70,13 +77,16 @@ def parse(lexedFile):
             params.append(" ".join(lexedFile[paramS:paramS + end]));
 
             nod.params = params;
-        
+        else:
+            nod.params = "";
+        nodes.append(nod);
         
         
 
             
-
-    #print nod.params;
+    for nod in nodes:
+        print nod.name;
+        print nod.params;
     
 
     parsed = lexedFile
