@@ -28,7 +28,7 @@ from errors import *
 
 ############################### CONST VARAIBLES ################################
 symbols    = {":", "=", "<", ">", "{", "}", "[", "]", "(", ")", ";", "-", "+", \
-"/", "*", "."}
+"/", "*", ".", ","}
 types      = {"node", "int", "bool", "char", "byte"}
 keywords   = {"for", "while", "in"}
 states     = ["READING", "READ_KEYWORD", "READ_TYPE", "READ_WHITESPACE"]
@@ -36,7 +36,14 @@ states     = ["READING", "READ_KEYWORD", "READ_TYPE", "READ_WHITESPACE"]
 
 
 ############################## PRIVATE FUNCTIONS ###############################
-def safe_split(stringLines):
+# Splits lines of file into words but leaves whitespace in string literals
+# Params:
+#       stringLines - list of lines in file as strings
+# 
+# Returns: 
+#       wordsByLine - plaintext lines split into words (list of string lists)
+#
+def split_whitespace(stringLines):
         wordsByLine = []
         readingString = False
         readQuote = False
@@ -77,17 +84,71 @@ def safe_split(stringLines):
 
         return wordsByLine
 
-def is_type(token):
-        return token in types
+# Separates symbols from non-symbol tokens
+# Params:
+#       wordList - plaintext lines split into words (list of string lists)
+# 
+# Returns: 
+#       tokenized - lexed plaintext as tokenized lines (list of string lists)
+#
+def tokenize_symbols(wordList):
+        tokenized = [[] for line in wordList]
 
-def update_state(prevState, prevToken, char):
+        for lineIndex in range(len(wordList)):
+                line = wordList[lineIndex]
+                for word in line:
+                        start = 0
+                        for charIndex in range(len(word)): 
+                                char = word[charIndex]
+                                if char in symbols:
+                                        if charIndex > start:
+                                                tokenized[lineIndex].append(word[start:charIndex])
+                                        tokenized[lineIndex].append(word[charIndex:charIndex + 1])
+                                        start = charIndex + 1
 
-        return prevState, prevToken + char, None
+                        if start != len(word):
+                                tokenized[lineIndex].append(word[start:])
 
-############################### LEXER VARAIBLES ################################
-parenStack = []
-bracketStack = []
-braceStack = []
+        return tokenized
+
+# Updates state according to next token, determins error if incorrect grammar
+# Params:
+#       state - current state up to next token
+#       token - next token to be processed
+#       lexed - lexed plaintext as tokenized lines (list of lists)
+# 
+# Returns: 
+#       newState - updated state according to newly processed token
+#       grammarError - tuple of error type (warning or error) and error message
+#
+def update_state(state, token, lexed):
+        newState = state
+        grammarError = None
+        return newState, grammarError
+
+# Checks grammar of lexed file, reports warnings and errors
+# Params:
+#       lexed - lexed plaintext as tokenized lines (list of string lists)
+#
+def check_grammar(lexed):
+        pass
+        token = ""
+        state = ""
+        parenStack = []
+        bracketStack = []
+        braceStack = []
+
+        for lineIndex in range(len(lexed)):
+                line = lexed[lineIndex]
+                for token in line:
+                        state, err = update_state(state, token, lexed)
+                        if err is not None:
+                                errType, message = err
+                                if errType == "warning":
+                                        compile_warning(lineIndex + 1, err)
+                                else:
+                                        compile_error(lineIndex + 1, err)
+
 
 ################################## INTERFACE ###################################
 # Lexes file, reports warnings and errors.
@@ -95,25 +156,16 @@ braceStack = []
 #       fileText - plaintext of file as string
 # 
 # Returns: 
-#       lexed - lexed plaintext as list of tokens (tokens are strings)
+#       lexed - lexed plaintext tokenized lines (list of lists)
 #
 def lex(fileText):
-        lexed = []
         splitLines = fileText.split("\n") 
-        splitWords = safe_split(splitLines) #removes whitespace, keeps in strings
-        token = ""
-        state = ""
+        splitWords = split_whitespace(splitLines) #removes whitespace, keeps in strings
+        
+        lexed = tokenize_symbols(splitWords) 
 
-        for lineIndex in range(len(splitWords)):
-                line = splitWords[lineIndex]
-                for word in line:
-                        for char in word:
-                                state, token, err = update_state(state, token, char)
-                                if err is not None:
-                                        print("ERROR")
-
-                        lexed.append(token)
-                        token = ""
-
+        check_grammar(lexed)
+ 
         print(lexed)
+
         return lexed
