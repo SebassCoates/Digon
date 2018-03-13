@@ -53,5 +53,5 @@ class Node:
 # Returns: 
 #       node initialized with parameter values
 #
-def create_node(name, sourceCode, neighbors, color="undefined"):
+def create_node(name, sourceCode="", neighbors=[], color="undefined"):
     return Node(name, sourceCode, neighbors, color)

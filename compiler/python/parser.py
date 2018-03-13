@@ -27,16 +27,6 @@
 from errors import *
 from node   import *
 
-############################## PRIVATE FUNCTIONS ###############################
-
-
-############################## PARSER VARAIBLES ################################
-###Constants
-
-###Used During Lexing
-
-################################## INTERFACE ###################################
-
 # Parses file, reports warnings and errors.
 # Params:
 #       lexedFile - lexed plaintext of file as list of tokens 
@@ -44,6 +34,50 @@ from node   import *
 # Returns: 
 #       parsed - lexed, parsed plaintext as dictionary {node ID --> node struct}
 #
+
+
 def parse(lexedFile):
+   
+    nod = create_node("name");
+    indices = [i for i, x in enumerate(lexedFile) if x == "node"];
+
+    length = len(lexedFile);
+
+    indices.append(length);
+
+    for i in range(len(indices) - 1):
+        n = indices[i];
+        nod.name = lexedFile[n + 1]
+        
+        
+        if lexedFile[n + 2] == "<=":        # node has params
+            paramS = n + 4;                 # strt of params
+            params = [];
+            end = lexedFile[paramS:].index(")");        # where params end
+
+
+            n = end + paramS + 2;       # set n to first index of code
+            while True:                                 # get up to last param
+                if "," in  lexedFile[paramS:paramS + end]:      
+                    comma = lexedFile[paramS:paramS + end].index(",");
+                    params.append(" ".join(lexedFile[paramS:paramS + comma]));
+                    paramS += comma + 1;
+                    end -= (comma + 1);
+                else:
+                    break;
+
+            # get last param
+            params.append(" ".join(lexedFile[paramS:paramS + end]));
+
+            nod.params = params;
+        
+        
+        
+
+            
+
+    #print nod.params;
+    
+
     parsed = lexedFile
     return parsed
