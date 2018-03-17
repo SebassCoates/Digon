@@ -26,8 +26,11 @@
 ################################################################################
 
 from node import * #defines node 'struct'
+
 ############################## PRIVATE CONSTANTS ###############################
-COLORS = open('colors.txt', 'r').read().split()
+COLORS = set(open('colors.txt', 'r').read().split())
+
+BUILT_IN_NODES = {'dest', 'length', 'print'}
 
 ############################## PRIVATE FUNCTIONS ###############################
 # Colors graph using super cool graph coloring algorithm
@@ -38,11 +41,32 @@ COLORS = open('colors.txt', 'r').read().split()
 #       colors - list of colors for graph
 #
 #
-def color_graph(adjList):
-        try:
-                colors = [COLORS.pop() for node in adjList]
-        except:
-                print("We've run out of colors........")
+def color_graph(adjList, nodeList):
+        nodes = [i for i in range(len(adjList))]
+        visited = [False for node in nodes]
+        colors = ['no_color' for i in range(len(nodes))] 
+        indexedLabels = [node.name for node in nodeList]
+
+        while len(nodes) > 0: 
+                root = nodes.pop(0)
+                nodeQ = [root]
+                visited[root] = True
+                colors[root] = 'Black'
+
+                while len(nodeQ) > 0:
+                        node = nodeQ.pop(0)
+                        COLORS.remove(colors[node])
+                        newColor = COLORS.pop()
+                        for child in adjList[node]:
+                                if child not in BUILT_IN_NODES:
+                                        childIndex = indexedLabels.index(child)
+                                        colors[childIndex] = newColor
+                                        nodeQ.append(childIndex)
+                                        visited[childIndex] = True
+                                        nodes.remove(childIndex)
+                        COLORS.add(colors[node])
+                        COLORS.add(newColor)
+
         return colors
 
 ################################## INTERFACE ###################################
@@ -62,7 +86,7 @@ def build_CCFG(nodeList):
         for i, node in enumerate(nodeList):
                 adjList[i] = set(node.neighbors)
 
-        colors = color_graph(adjList)
+        colors = color_graph(adjList, nodeList)
 
         return (adjList, colors, nodeList)
 

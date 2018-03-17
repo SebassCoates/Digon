@@ -59,6 +59,7 @@ for filename in argv[1:]:
         err.invalid_file_extension(filename)
 
     parsedFiles[filename] = process_file(filename) 
+err.quit_if_error()
 
 allNodes = []
 for file in parsedFiles:
@@ -66,7 +67,9 @@ for file in parsedFiles:
 
 ccfg = build_CCFG(allNodes)
 
+
+
 write_graph(ccfg)
 
-err.quit_if_error()
+
 
