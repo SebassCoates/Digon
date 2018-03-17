@@ -61,5 +61,8 @@ for filename in argv[1:]:
 
     parsedFiles[filename] = process_file(filename) 
 
+for file in parsedFiles:
+    write_graph(parsedFiles[file])
+
 err.quit_if_error()
 

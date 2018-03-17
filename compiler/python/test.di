@@ -1,5 +1,5 @@
 node root {
-        [1,2,3,4,5,6,7,8,9,10] => (initialize_data);
+        [1,2,3,4,5,6,7,8,9,10] => (calculate_stats);
 }
 
 node calculate_stats <= (data []int){

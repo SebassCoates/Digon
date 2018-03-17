@@ -25,8 +25,28 @@
 #  along with Digon.  If not, see <http://www.gnu.org/licenses/>.              #
 ################################################################################
 
-from node import *
+from node import * #defines node 'struct'
+############################## PRIVATE CONSTANTS ###############################
+COLORS = ['blue', 'red', 'green', 'yellow', 'purple', 'orange', 'mauve']
 
+############################## PRIVATE FUNCTIONS ###############################
+# Colors graph using super cool graph coloring algorithm
+# Params:
+#       adjList - adjacency list of graph (list of sets)
+# 
+# Returns: 
+#       colors - list of colors for graph
+#
+#
+def color_graph(adjList):
+        try:
+                colors = [COLORS.pop() for node in adjList]
+        except:
+                "We've run out of colors........"
+
+        return colors
+
+################################## INTERFACE ###################################
 # Builds colored control flow graph (CCFG)
 # Params:
 #       nodeList - list of node structs representing source code (see node.py) 
@@ -38,6 +58,47 @@ from node import *
 def build_CCFG(nodeList):
         adjList = [set() for node in nodeList]
         nodeNames = set([node.name for node in nodeList])
+        colors = []
 
+        for i, node in enumerate(nodeList):
+                adjList[i] = set(node.neighbors)
 
-        return ("hello", "world")
+        colors = color_graph(adjList)
+
+        return (adjList, colors, nodeList)
+
+# Writes graph data to Graph Viewer compatible files
+# Params:
+#       ccfg - CCFG tuple representation (adjList, colors, nodeList)
+# 
+# Writes Files:
+#       ccfg.txt - adjacency matrix data for ccfg
+#       ccfg_labels.txt - label names for ccfg
+#       ccfg_colors.txt - colors for ccfg       
+#
+def write_graph(ccfg):
+        graphfile = open('ccfg.txt', 'w')
+        labelfile = open('ccfg_labels.txt', 'w')
+        colorfile = open('ccfg_colors.txt', 'w')
+
+        adjList, colors, nodeList = ccfg
+
+        for i, node in enumerate(nodeList):
+                indexedLabels = [n.name for n in nodeList]
+                neighborIndices = [indexedLabels.index(n) for n in node.neighbors if n in adjList[i] and n in indexedLabels]
+
+                for j in range(len(adjList)):
+                        if j in neighborIndices:
+                                graphfile.write('1 ')
+                        else:
+                                graphfile.write('0 ')
+                graphfile.write("\n")
+                labelfile.write(node.name + "\n")
+
+        for color in colors:
+                colorfile.write(color + "\n")
+
+        graphfile.close()
+        labelfile.close()
+        colorfile.close()
+

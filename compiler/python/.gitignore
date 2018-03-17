@@ -1,2 +1,7 @@
 *.di
+*.txt
+*.html
+*.js
+*.css
+graphviewer.py
 !test.di
