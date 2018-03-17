@@ -32,7 +32,12 @@ from node import *
 #       nodeList - list of node structs representing source code (see node.py) 
 # 
 # Returns: 
-#       CCFG representation of nodes in nodeList
+#       CCFG tuple representation (adjList, colors, nodeList)
+#
 #
 def build_CCFG(nodeList):
-    return ("hello", "world")
+        adjList = [set() for node in nodeList]
+        nodeNames = set([node.name for node in nodeList])
+
+
+        return ("hello", "world")

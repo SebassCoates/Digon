@@ -5,8 +5,8 @@
 #                                                                              #
 #  Created by Sebastian Coates and John Tagliaferro at Tufts University.       #
 #                                                                              #
-#  digon.py                                                                    #
-#  Compiles Digon source code to Go, runs Go compiler to generate executable.  #
+#  transpiler.py                                                               #
+#  Transpiles Digon into equivalent Go.                                        #
 #                                                                              #
 #  Copyright 2018 Sebastian Coates and John Tagliaferro.                       #
 #                                                                              #
@@ -24,42 +24,15 @@
 #  along with Digon.  If not, see <http://www.gnu.org/licenses/>.              #
 ################################################################################
 
-from sys import argv #command line args
-from node import *   #node definition
-from ccfg import *   #CCFG definition
-from lexer import lex
-from parser import parse
-import errors as err
 
-
-# Processes file to be ready for compilation. Takes lexed, parsed, filetext and
-# converts to CCFG representation.
+################################## INTERFACE ###################################
+# Transpiles Digon source to equivalent Go source
 # Params:
-#       filename - path to .di source code file
+#       sourcecode - Parsed Digon source code by line (list of string lists)
 # 
 # Returns: 
-#       Parsed file in CCFG form
+#       transpiled - Transpiled code in same form
 #
-def process_file(filename):
-    try:
-        filetext = open(filename, 'r').read()
-    except:
-        err.invalid_file(filename)
-
-    nodeList = parse(lex(filetext))
-    
-    ccfg = build_CCFG(nodeList)
-    return ccfg
-
-
-################################### MAIN #######################################
-parsedFiles = {}
-
-for filename in argv[1:]:
-    if filename[len(filename) - 3:] != '.di':
-        err.invalid_file_extension(filename)
-
-    parsedFiles[filename] = process_file(filename) 
-
-err.quit_if_error()
-
+def transpile(sourcecode):
+        transpiled = sourcecode
+        return transpiled

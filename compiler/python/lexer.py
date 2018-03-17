@@ -165,7 +165,5 @@ def lex(fileText):
         lexed = tokenize_symbols(splitWords) 
 
         check_grammar(lexed)
- 
-        print(lexed)
 
         return lexed
