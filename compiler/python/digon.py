@@ -38,7 +38,7 @@ import errors as err
 #       filename - path to .di source code file
 # 
 # Returns: 
-#       Parsed file in CCFG form
+#       Parsed file
 #
 def process_file(filename):
     try:
@@ -48,8 +48,7 @@ def process_file(filename):
 
     nodeList = parse(lex(filetext))
     
-    ccfg = build_CCFG(nodeList)
-    return ccfg
+    return nodeList
 
 
 ################################### MAIN #######################################
@@ -61,8 +60,13 @@ for filename in argv[1:]:
 
     parsedFiles[filename] = process_file(filename) 
 
+allNodes = []
 for file in parsedFiles:
-    write_graph(parsedFiles[file])
+    allNodes += parsedFiles[file]
+
+ccfg = build_CCFG(allNodes)
+
+write_graph(ccfg)
 
 err.quit_if_error()
 

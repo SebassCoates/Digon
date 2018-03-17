@@ -5,3 +5,4 @@
 *.css
 graphviewer.py
 !test.di
+!colors.txt

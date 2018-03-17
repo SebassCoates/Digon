@@ -27,7 +27,7 @@
 
 from node import * #defines node 'struct'
 ############################## PRIVATE CONSTANTS ###############################
-COLORS = ['blue', 'red', 'green', 'yellow', 'purple', 'orange', 'mauve']
+COLORS = open('colors.txt', 'r').read().split()
 
 ############################## PRIVATE FUNCTIONS ###############################
 # Colors graph using super cool graph coloring algorithm
@@ -42,8 +42,7 @@ def color_graph(adjList):
         try:
                 colors = [COLORS.pop() for node in adjList]
         except:
-                "We've run out of colors........"
-
+                print("We've run out of colors........")
         return colors
 
 ################################## INTERFACE ###################################
