@@ -71,4 +71,5 @@ def compile_error(lineNumber, errorType):
 # Quits program if any errors occurred during compilation.
 def quit_if_error():
     if errorCount != 0:
+        print("Errors encountered during compilation - build failed")
         quit()

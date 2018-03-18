@@ -33,7 +33,13 @@ types      = {"node", "int", "bool", "char", "byte"}
 keywords   = {"for", "while", "in"}
 states     = ["READING", "READ_KEYWORD", "READ_TYPE", "READ_WHITESPACE"]
 
-
+################################# GLOBAL VARS ##################################
+parenStack   = [] #for grammar check
+bracketStack = [] #for grammar check
+braceStack   = [] #for grammar check
+variables    = set() #for grammar check
+nodes        = set() #for grammar check
+existingVar  = False #for grammar check
 
 ############################## PRIVATE FUNCTIONS ###############################
 # Splits lines of file into words but leaves whitespace in string literals
@@ -111,6 +117,35 @@ def tokenize_symbols(wordList):
 
         return tokenized
 
+# Determines if new token represents a newly defined variable
+# Params:
+#       token - next token to be processed
+#       state - current state up to next token
+# 
+# Returns: 
+#       True if token is new variable
+#       False otherwise
+#
+def is_new_variable(token, state):
+        global parenStack, bracketStack, braceStack, variables, nodes
+
+        if token not in variables.union(nodes).union(keywords).union(symbols).union(types):
+                if state != "READING_LITERAL":
+                        return True
+
+        return False
+
+def is_rval(token, state):
+        if state == "READING_LITERAL":
+                return True
+
+        try:
+                intval = int(token)
+        except: #not int literal
+                return False
+
+        return True
+
 # Updates state according to next token, determins error if incorrect grammar
 # Params:
 #       state - current state up to next token
@@ -122,8 +157,75 @@ def tokenize_symbols(wordList):
 #       grammarError - tuple of error type (warning or error) and error message
 #
 def update_state(state, token, lexed):
-        newState = state
+        global parenStack, bracketStack, braceStack, variables, nodes
+        global existingVar
         grammarError = None
+        
+        if state == "NEUTRAL":
+                if token == 'node':
+                        state = "NODE_DECLARED"
+                elif is_new_variable(token, state):
+                        variables.add(token)
+                        state = "DEFINING_VAR"
+                elif token in variables:
+                        state = "DEFINING_VAR"
+                        existingVar = True
+
+        elif state == "NODE_DECLARED":
+                if is_new_variable(token, state):
+                        nodes.add(token)
+                        state = "DEFINING_NODE"
+                elif token in nodes:
+                        grammarError = ('error', "Redefinition of node '" + token + "'")
+                        state = "NEUTRAL"
+                else:
+                        grammarError = ('error', "Expecting Node name, got '" + token + "'")
+                        state = "NEUTRAL"
+
+        elif state == "DEFINING_NODE":
+                if token == '{':
+                        bracketStack.append(1)
+                        state = "NEUTRAL"
+
+        elif state == "DEFINING_VAR":
+                if token == ",":
+                        state = "DEFINING_TUPLE"
+                elif token == ":":
+                        if not existingVar:
+                                state = "EXPECTING_="
+                        else:
+                                grammarError = ('error', "Redefinition of variable")
+                                state = "NEUTRAL"
+                elif token == "=":
+                        state = "ASSINGING_TO_VAR"
+                        existingVar = False
+                else:
+                        grammarError = ('error', "During variable declaration got '" + token + "'")
+                        state = "NEUTRAL"
+
+        elif state == "EXPECTING_=":
+                if token != "=":
+                        grammarError = ('error', "Expecting '=', got '" + token + "'")
+                        state = "NEUTRAL"
+                else:
+                        state = "ASSINGING_TO_VAR"
+
+        elif state == "ASSINGING_TO_VAR":
+                if is_rval(token, state):
+                        state = "RESOLVING_RVAL"
+                else:
+                        grammarError = ('error', "Expecting value, got '" + token + "'")
+                        state = "NEUTRAL"
+
+        elif token == ';' and state != "NEUTRAL" and state != "RESOLVING_RVAL":
+                grammarError = ('error', "Got ';' before expected end of line")
+                state = "NEUTRAL"
+        
+        else:
+                state = "NEUTRAL"
+
+        newState = state
+        
         return newState, grammarError
 
 # Checks grammar of lexed file, reports warnings and errors
@@ -131,12 +233,8 @@ def update_state(state, token, lexed):
 #       lexed - lexed plaintext as tokenized lines (list of string lists)
 #
 def check_grammar(lexed):
-        pass
         token = ""
-        state = ""
-        parenStack = []
-        bracketStack = []
-        braceStack = []
+        state = "NEUTRAL"
 
         for lineIndex in range(len(lexed)):
                 line = lexed[lineIndex]
@@ -145,9 +243,9 @@ def check_grammar(lexed):
                         if err is not None:
                                 errType, message = err
                                 if errType == "warning":
-                                        compile_warning(lineIndex + 1, err)
+                                        compile_warning(lineIndex + 1, message)
                                 else:
-                                        compile_error(lineIndex + 1, err)
+                                        compile_error(lineIndex + 1, message)
 
 
 ################################## INTERFACE ###################################
