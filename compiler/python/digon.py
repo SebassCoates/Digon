@@ -68,9 +68,4 @@ for file in parsedFiles:
 linked = connect_graph(allNodes)
 ccfg = build_CCFG(linked)
 
-
-
 write_graph(ccfg)
-
-
-

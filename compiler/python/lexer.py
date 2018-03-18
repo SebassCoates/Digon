@@ -135,6 +135,15 @@ def is_new_variable(token, state):
 
         return False
 
+# Determines if new token is part of rval for variable assignment
+# Params:
+#       token - next token to be processed
+#       state - current state up to next token
+# 
+# Returns: 
+#       True if token is part of valid rval
+#       False otherwise
+#
 def is_rval(token, state):
         if state == "READING_LITERAL":
                 return True
