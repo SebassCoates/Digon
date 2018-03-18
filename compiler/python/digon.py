@@ -65,7 +65,8 @@ allNodes = []
 for file in parsedFiles:
     allNodes += parsedFiles[file]
 
-ccfg = build_CCFG(allNodes)
+linked = connect_graph(allNodes)
+ccfg = build_CCFG(linked)
 
 
 

@@ -33,13 +33,27 @@ COLORS = set(open('colors.txt', 'r').read().split())
 BUILT_IN_NODES = {'dest', 'length', 'print'}
 
 ############################## PRIVATE FUNCTIONS ###############################
+# Builds graph using list of nodes
+# Params:
+#       nodeList - list of node structs
+# 
+# Returns: 
+#       adjList - adjacency list for given graph
+#
+def build_graph(nodeList):
+        adjList = [set() for node in nodeList]
+
+        for i, node in enumerate(nodeList):
+                adjList[i] = set(node.neighbors)
+
+        return adjList
+
 # Colors graph using super cool graph coloring algorithm
 # Params:
 #       adjList - adjacency list of graph (list of sets)
 # 
 # Returns: 
 #       colors - list of colors for graph
-#
 #
 def color_graph(adjList, nodeList):
         nodes = [i for i in range(len(adjList))]
@@ -70,6 +84,27 @@ def color_graph(adjList, nodeList):
         return colors
 
 ################################## INTERFACE ###################################
+# Links all files - all destinations resolved
+# Params:
+#       nodeList - list of node structs representing source code (see node.py) 
+# 
+# Returns: 
+#       linked - updated node list with all destinations resolved
+#
+def connect_graph(nodeList):
+        linked = []
+        linked = nodeList
+
+        adjList = build_graph(nodeList)
+
+        for i, node in enumerate(nodeList):
+                for neighbor in node.neighbors:
+                        if neighbor == 'dest':
+                                pass
+
+        print([node.neighbors for node in linked])
+        return linked
+
 # Builds colored control flow graph (CCFG)
 # Params:
 #       nodeList - list of node structs representing source code (see node.py) 
@@ -77,14 +112,10 @@ def color_graph(adjList, nodeList):
 # Returns: 
 #       CCFG tuple representation (adjList, colors, nodeList)
 #
-#
 def build_CCFG(nodeList):
-        adjList = [set() for node in nodeList]
         nodeNames = set([node.name for node in nodeList])
         colors = []
-
-        for i, node in enumerate(nodeList):
-                adjList[i] = set(node.neighbors)
+        adjList = build_graph(nodeList)
 
         colors = color_graph(adjList, nodeList)
 
@@ -124,4 +155,3 @@ def write_graph(ccfg):
         graphfile.close()
         labelfile.close()
         colorfile.close()
-
