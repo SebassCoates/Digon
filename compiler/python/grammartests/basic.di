@@ -5,6 +5,13 @@ node root {
         y = 5;
 }
 
-node takesParams <= (z [10]int) {
-        z = 5;
+node takesParams <= (a [10]int, b char, c[][5]byte) {
+        a = 5;
+        d := 5;
+
+        for i, elem in a {
+                for (j) in elem {
+                        d = 69;
+                }
+        }
 }

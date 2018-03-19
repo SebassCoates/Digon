@@ -29,7 +29,7 @@ from errors import *
 ############################### CONST VARAIBLES ################################
 symbols    = {":", "=", "<", ">", "{", "}", "[", "]", "(", ")", ";", "-", "+", \
 "/", "*", ".", ","}
-types      = {"node", "int", "bool", "char", "byte"}
+types      = {"node", "int", "bool", "char", "byte", "string"}
 keywords   = {"for", "while", "in"}
 states     = ["READING", "READ_KEYWORD", "READ_TYPE", "READ_WHITESPACE"]
 
@@ -46,6 +46,9 @@ expectingType = False
 expectingVar = False
 expectingInt = False
 expectingBracket = False
+expectingComma = False
+expectingIn = False
+expectingIterable = False
 numParens = 0
 
 ############################## PRIVATE FUNCTIONS ###############################
@@ -196,6 +199,7 @@ def update_state(state, token, lexed):
         global parenStack, bracketStack, braceStack, variables, nodes
         global existingVar, expectingEquals, numParens, expectingBrace
         global expectingType, expectingVar, expectingInt, expectingBracket
+        global expectingComma, expectingIn, expectingIterable
         grammarError = None
 
         if state == "NEUTRAL":
@@ -215,6 +219,9 @@ def update_state(state, token, lexed):
                                 state = "NEUTRAL"
                 elif token == "{":
                         braceStack.append(1)
+                elif token == "for":
+                        state = "FOR_LOOP_DECLARED"
+                        expectingVar = True
 
         elif state == "NODE_DECLARED":
                 if is_new_variable(token, state):
@@ -274,7 +281,9 @@ def update_state(state, token, lexed):
                         else:
                                 grammarError = ('error', "Not expecting variable, but got'" + token + "'")
                 elif token in types:
-                        if expectingType:
+                        if expectingInt or expectingBracket:
+                                grammarError = ('error', "Expecting integer or closing bracket but got '" + token + "'")
+                        elif expectingType:
                                 expectingType = False
                         else:
                                 grammarError = ('error', "Not expecting type but got '" + token + "'")
@@ -295,7 +304,6 @@ def update_state(state, token, lexed):
                         else:
                                 expectingInt = True
                                 expectingBracket = True
-
                 elif token == "]":
                         if not expectingType:
                                 grammarError = ('error', "Expecting type but got '" + token + "'")
@@ -304,7 +312,6 @@ def update_state(state, token, lexed):
                         else:
                                 expectingInt = False
                                 expectingBracket = False
-
 
         elif state == "DEFINING_VAR":
                 if token == ",":
@@ -316,8 +323,11 @@ def update_state(state, token, lexed):
                                 grammarError = ('error', "Redefinition of variable")
                                 state = "NEUTRAL"
                 elif token == "=":
-                        state = "ASSINGING_TO_VAR"
-                        existingVar = False
+                        if not existingVar:
+                                grammarError = ('error', "Variable undeclared before assignment")
+                        else:
+                                state = "ASSINGING_TO_VAR"
+                                existingVar = False
                 else:
                         grammarError = ('error', "During variable declaration got '" + token + "'")
                         state = "NEUTRAL"
@@ -335,6 +345,49 @@ def update_state(state, token, lexed):
                 else:
                         grammarError = ('error', "Expecting value, got '" + token + "'")
                         state = "NEUTRAL"
+
+        elif state == "FOR_LOOP_DECLARED":
+                if token == "(":
+                        numParens = len(parenStack)
+                        parenStack.append(1)
+                elif token == ")":
+                        if len(parenStack) > 0:
+                                parenStack.pop()
+                        else:
+                                grammarError = ('error', "You have unbalanced parentheses (more open than closed)")
+                                state = "NEUTRAL"
+                elif token == "in":
+                        if not expectingIn:
+                                grammarError = ('error', "Unexpected 'in'")
+                        else:
+                                expectingIterable = True
+                                expectingComma = False
+                                expectingVar = False
+                elif expectingIterable:
+                        if token not in variables: #TODO: PROPER ITERABLE CHECK
+                                grammarError = ('error', "Expecting iterable but got '" + token + "'")
+                        else:
+                                expectingBrace = True
+                                expectingIterable = False
+                elif token == "{":
+                        if not expectingBrace:
+                                grammarError = ('error', "Expecting for loop definition but got '{'")
+                        state = "NEUTRAL"
+                        braceStack.append(1)
+                elif is_new_variable(token, state) or token in variables:
+                        if expectingVar:
+                                expectingVar = False
+                                expectingComma = True
+                                expectingIn = True
+                                variables.add(token)
+                        else:
+                                grammarError = ('error', "Not expecting variable but got '" + token + "'")
+                elif token == ',':
+                        if expectingComma:
+                                expectingVar = True
+                                expectingComma = False
+                        else:
+                                grammarError = ('error', "Unexpected ,")
 
         elif token == ';' and state != "NEUTRAL" and state != "RESOLVING_RVAL":
                 grammarError = ('error', "Got ';' before expected end of line")
