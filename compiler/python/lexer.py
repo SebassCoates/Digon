@@ -44,6 +44,8 @@ expectingEquals = False
 expectingBrace = False
 expectingType = False
 expectingVar = False
+expectingInt = False
+expectingBracket = False
 numParens = 0
 
 ############################## PRIVATE FUNCTIONS ###############################
@@ -160,6 +162,26 @@ def is_rval(token, state):
 
         return True
 
+# Determines if new token is int literal or int variable
+# Params:
+#       token - next token to be processed
+#       state - current state up to next token
+# 
+# Returns: 
+#       True if token is int
+#       False otherwise
+#
+def is_int(token, state):
+        global variables
+        if token in variables: #TODO CHECK IF INT VARIABLE
+                return True
+        try:
+                x = int(token)
+        except:
+                return False
+
+        return True
+
 # Updates state according to next token, determins error if incorrect grammar
 # Params:
 #       state - current state up to next token
@@ -173,10 +195,8 @@ def is_rval(token, state):
 def update_state(state, token, lexed):
         global parenStack, bracketStack, braceStack, variables, nodes
         global existingVar, expectingEquals, numParens, expectingBrace
-        global expectingType, expectingVar
+        global expectingType, expectingVar, expectingInt, expectingBracket
         grammarError = None
-
-        print(state)
 
         if state == "NEUTRAL":
                 if token == 'node':
@@ -231,6 +251,12 @@ def update_state(state, token, lexed):
                                 grammarError = ('error', "Expecting parameters but got '{'")
                 elif token == "(":
                         parenStack.append(1)
+                elif is_int(token, state):
+                        if not expectingInt:
+                                grammarError = ('error', "Expecting int but got '" + token + "'")
+                        else:
+                                expectingInt = False
+                                expectingBracket = True
                 elif token == ")":
                         if len(parenStack) == 0:
                                 grammarError = ('error', "You have unbalanced parentheses (more open than closed)")
@@ -259,6 +285,26 @@ def update_state(state, token, lexed):
                                 grammarError = ('error', "Expecting var but got ','")
                         else:
                                 expectingVar = True
+                elif token == "[":
+                        if not expectingType:
+                                grammarError = ('error', "Expecting type but got '" + token + "'")
+                        elif expectingInt:
+                                grammarError = ('error', "Expecting integer literal or variable but got '" + token + "'")
+                        elif expectingBracket: #closing bracket
+                                grammarError = ('error', "Expecting ']' but got '" + token + "'")
+                        else:
+                                expectingInt = True
+                                expectingBracket = True
+
+                elif token == "]":
+                        if not expectingType:
+                                grammarError = ('error', "Expecting type but got '" + token + "'")
+                        elif not expectingBracket:
+                                grammarError = ('error', "Unexpected ']'")
+                        else:
+                                expectingInt = False
+                                expectingBracket = False
+
 
         elif state == "DEFINING_VAR":
                 if token == ",":
