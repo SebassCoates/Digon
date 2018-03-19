@@ -40,6 +40,11 @@ braceStack   = [] #for grammar check
 variables    = set() #for grammar check
 nodes        = set() #for grammar check
 existingVar  = False #for grammar check
+expectingEquals = False
+expectingBrace = False
+expectingType = False
+expectingVar = False
+numParens = 0
 
 ############################## PRIVATE FUNCTIONS ###############################
 # Splits lines of file into words but leaves whitespace in string literals
@@ -167,9 +172,12 @@ def is_rval(token, state):
 #
 def update_state(state, token, lexed):
         global parenStack, bracketStack, braceStack, variables, nodes
-        global existingVar
+        global existingVar, expectingEquals, numParens, expectingBrace
+        global expectingType, expectingVar
         grammarError = None
-        
+
+        print(state)
+
         if state == "NEUTRAL":
                 if token == 'node':
                         state = "NODE_DECLARED"
@@ -179,6 +187,14 @@ def update_state(state, token, lexed):
                 elif token in variables:
                         state = "DEFINING_VAR"
                         existingVar = True
+                elif token == '}':
+                        if len(braceStack) > 0:
+                                braceStack.pop()
+                        else:
+                                grammarError = ('error', "Unbalanced brackets '" + token + "'")
+                                state = "NEUTRAL"
+                elif token == "{":
+                        braceStack.append(1)
 
         elif state == "NODE_DECLARED":
                 if is_new_variable(token, state):
@@ -193,8 +209,56 @@ def update_state(state, token, lexed):
 
         elif state == "DEFINING_NODE":
                 if token == '{':
-                        bracketStack.append(1)
+                        braceStack.append(1)
                         state = "NEUTRAL"
+                elif token == '<':
+                        expectingEquals = True
+                elif token == "=":
+                        if expectingEquals:
+                                state = "READING_PARAMS"
+                                numParens = len(parenStack)
+                                expectingVar = True
+                        else:
+                                grammarError = ('error', "Expecting '=', got '" + token + "'")
+
+        elif state == "READING_PARAMS":
+                if token == "{":
+                        if expectingBrace:
+                                state = "NEUTRAL"
+                                expectingBrace = False
+                                braceStack.append(1)
+                        else:
+                                grammarError = ('error', "Expecting parameters but got '{'")
+                elif token == "(":
+                        parenStack.append(1)
+                elif token == ")":
+                        if len(parenStack) == 0:
+                                grammarError = ('error', "You have unbalanced parentheses (more open than closed)")
+                                state = "NEUTRAL"
+                        else:
+                                parenStack.pop()
+                        if len(parenStack) == numParens:
+                                expectingBrace = True
+                                numParens = 0
+                elif is_new_variable(token, state):
+                        if expectingVar:
+                                variables.add(token)
+                                expectingType = True
+                                expectingVar = False
+                        else:
+                                grammarError = ('error', "Not expecting variable, but got'" + token + "'")
+                elif token in types:
+                        if expectingType:
+                                expectingType = False
+                        else:
+                                grammarError = ('error', "Not expecting type but got '" + token + "'")
+                elif token == ",":
+                        if expectingType:
+                                grammarError = ('error', "Expecting type but got ','")
+                        elif expectingVar:
+                                grammarError = ('error', "Expecting var but got ','")
+                        else:
+                                expectingVar = True
 
         elif state == "DEFINING_VAR":
                 if token == ",":
@@ -242,6 +306,8 @@ def update_state(state, token, lexed):
 #       lexed - lexed plaintext as tokenized lines (list of string lists)
 #
 def check_grammar(lexed):
+        global parenStack, bracketStack, braceStack, variables, nodes
+        global existingVar
         token = ""
         state = "NEUTRAL"
 
@@ -255,6 +321,12 @@ def check_grammar(lexed):
                                         compile_warning(lineIndex + 1, message)
                                 else:
                                         compile_error(lineIndex + 1, message)
+        if len(parenStack) > 0:
+                compile_error(-1, "You have unbalanced parentheses (more open than closed)")
+        if len(bracketStack) > 0:
+                compile_error(-1, "You have unbalanced brackets (more open than closed)")
+        if len(braceStack) > 0:
+                compile_error(-1, "You have unbalanced braces (more open than closed)")
 
 
 ################################## INTERFACE ###################################
