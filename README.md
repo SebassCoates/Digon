@@ -2,8 +2,8 @@
 
 -----------------
 
-**`Documentation`**
-[![Documentation](graphics/documentation_logo.png)](http://digon.readthedocs.io)  </br>
+**`Documentation`**<br/>
+[![Documentation](graphics/documentation_logo.png)](http://digon.readthedocs.io)
 
 -----------------
 

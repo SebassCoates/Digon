@@ -1,8 +1,9 @@
 node root {
         x := 5;
         x = 6;
-        y := 69;
+        y := 11;
         y = 5;
+        z := 0; 
 }
 
 node takesParams <= (a [10]int, b char, c[][5]byte) {
@@ -11,7 +12,11 @@ node takesParams <= (a [10]int, b char, c[][5]byte) {
 
         for i, elem in a {
                 for (j) in elem {
-                        d = 69;
+                        d = 13;
                 }
         }
+}
+
+node addTwo <= (f int, g int) {
+
 }
