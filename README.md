@@ -1,9 +1,11 @@
 ![Digon Logo](graphics/logo.png)
------------------
-| **`Documentation`** |
 
-|--------------------------------------------------------------------------------------------------------- |
-| [![Documentation](graphics/documentation_logo.png)](http://digon.readthedocs.io)| 
+-----------------
+
+**`Documentation`**
+[![Documentation](graphics/documentation_logo.png)](http://digon.readthedocs.io)
+
+-----------------
 
 A graph-based programming language for naturally concurrent and well-structured 
 code.
