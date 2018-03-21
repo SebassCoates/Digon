@@ -3,7 +3,7 @@
 -----------------
 
 **`Documentation`**
-[![Documentation](graphics/documentation_logo.png)](http://digon.readthedocs.io)
+[![Documentation](graphics/documentation_logo.png)](http://digon.readthedocs.io)  </br>
 
 -----------------
 
