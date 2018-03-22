@@ -6,15 +6,19 @@
 Welcome to Digon's documentation!
 =================================
 
+What is Digon?
+--------------
+
+Digon is a graph-based general purpose programming language for writing 
+naturally concurrent and well-structured code. 
+
+Contents
+========
+
 .. toctree::
    :maxdepth: 2
-   :caption: Contents:
 
-
-
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
+   examples.rst
+   guide.rst
+   compiling.rst
+   faq.rst
