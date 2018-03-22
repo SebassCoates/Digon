@@ -1,11 +1,12 @@
 node root {
-        [1,2,3,4,5,6,7,8,9,10] => (initialize_data);
+        array := [10]int{1,2,3,4,5,6,7,8,9,10}
+        array => initialize_data(data);
 }
 
 node calculate_stats <= (data []int){
-        data => (mean) => (print_data);
-        data => (median) => (print_data);
-        data => (mode) => (print_data);
+        data => mean() => print_data(average);
+        data => median() => print_data(median);
+        data => mode() => print_data(mode);
 }
 
 node mean <= (data []int) {
@@ -14,8 +15,9 @@ node mean <= (data []int) {
                 average += elem;
         }
 
-        data => (length) => length;
-        average / length => (dest);
+        length := 0;
+        data => length() => length;
+        average / length => dest();
 }
 
 node median <= (data []int) {
@@ -31,8 +33,9 @@ node median <= (data []int) {
                 }
         }
 
-        length <= (length) <= data;
-        data[length / 2] => (dest);
+        length := 0;
+        data => length() => length;
+        data[length / 2] => dest();
 }
 
 node mode <= (data []int) {
@@ -56,11 +59,11 @@ node mode <= (data []int) {
                 }
         }
 
-        mode => (dest);
+        mode => dest();
 }
 
 node print_data <= (average float, median int, mode int){
-        average => (print);
-        median => (print);
-        mode => (print); 
+        average => println();
+        median => println();
+        mode => println(); 
 }
