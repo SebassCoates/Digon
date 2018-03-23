@@ -55,6 +55,10 @@ expectingLiteral = False
 expectingOperand = False
 expectingOpenBrace = False
 expectingString = False
+possiblyLinking = False
+expectingLessThan = False
+expectingGreaterThan = False
+expectingNode = False
 numParens = 0
 
 ############################## PRIVATE FUNCTIONS ###############################
@@ -209,11 +213,16 @@ def update_state(state, token, lexed):
         global expectingType, expectingVar, expectingInt, expectingBracket
         global expectingComma, expectingIn, expectingIterable, expectingLiteral
         global expectingInt, expectingOpenBrace, expectingString, expectingOperand
+        global possiblyLinking, expectingLessThan, expectingGreaterThan
+        global expectingNode
         grammarError = None
 
         if state == "NEUTRAL":
                 if token == 'node':
                         state = "NODE_DECLARED"
+                elif is_int(token, state):  #TODO: Replace with is_literal
+                        state = "LINKING_NODE"
+                        expectingEquals = True
                 elif is_new_variable(token, state):
                         variables.add(token)
                         state = "DEFINING_VAR"
@@ -324,7 +333,7 @@ def update_state(state, token, lexed):
 
         elif state == "DEFINING_VAR":
                 if token == ",":
-                        state = "DEFINING_TUPLE"
+                        state = "DEFINING_TUPLE" #TODO: Support Tuples
                 elif token == ":":
                         if not existingVar:
                                 state = "EXPECTING_="
@@ -349,9 +358,14 @@ def update_state(state, token, lexed):
                 else:
                         state = "ASSINGING_TO_VAR"
                         expectingLiteral = True
+                        possiblyLinking = True
 
         elif state == "ASSINGING_TO_VAR":
-                if is_int(token, state) and expectingLiteral:
+                if possiblyLinking and token == ">":
+                        state = "LINKING_NODE"
+                        expectingLiteral = False
+                        possiblyLinking = False
+                elif is_int(token, state) and expectingLiteral:
                         expectingLiteral = False
                         expectingOperand = True
                 elif token in opperands:
@@ -453,6 +467,33 @@ def update_state(state, token, lexed):
                                 expectingComma = False
                         else:
                                 grammarError = ('error', "Unexpected ,")
+
+        elif state == "LINKING_NODE":
+                if token == "=":
+                        if not expectingEquals:
+                                grammarError = ('error', "Unexpected '='")
+                        else:
+                                expectingGreaterThan = True
+                elif token == ">":
+                        if not expectingGreaterThan:
+                                grammarError = ('error', "Unexpected '>'")
+                        else:
+                                expectingNode = True
+                        expectingEquals = False
+                        expectingGreaterThan = False
+                elif token == "(":
+                        parenStack.append(1)
+                elif token == ")":
+                        parenStack.pop()
+                        expectingEquals = True
+                elif token == ";":
+                        state = "NEUTRAL"
+                        expectingEquals = False
+                        expectingNode = False
+                else: #TODO: Check if valid node name and valid params instead of default acceptance
+                        pass #
+                        if expectingNode: 
+                                pass
 
         elif token == ';' and state != "NEUTRAL":
                 grammarError = ('error', "Got ';' before expected end of line")

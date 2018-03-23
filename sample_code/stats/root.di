@@ -22,7 +22,7 @@ node mean <= (data []int) {
 
 node median <= (data []int) {
         for (i, elem) in data {
-                for j in range data[i:1:-1] {
+                for j in data[i:1:-1] {
                         if data[j] < data[j - 1] {
                                 temp := data[j - 1];
                                 data[j - 1] = data[j];

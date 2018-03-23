@@ -9,7 +9,7 @@ node calculate_stats <= (data []int){
         data => mode() => print_data(mode);
 }
 
-node mean <= (data []int) {
+node mean <= (data1 []int) {
         average := 0.0;
         for (i, elem) in data {
                 average += elem;
@@ -20,9 +20,9 @@ node mean <= (data []int) {
         average / length => dest();
 }
 
-node median <= (data []int) {
+node median <= (data2 []int) {
         for (i, elem) in data {
-                for j in range data[i:1:-1] {
+                for j in data[i:1:-1] {
                         if data[j] < data[j - 1] {
                                 temp := data[j - 1];
                                 data[j - 1] = data[j];
@@ -38,7 +38,7 @@ node median <= (data []int) {
         data[length / 2] => dest();
 }
 
-node mode <= (data []int) {
+node mode <= (data3 []int) {
         m := map<int, int>;
 
         for (index, elem) in data {
@@ -62,8 +62,8 @@ node mode <= (data []int) {
         mode => dest();
 }
 
-node print_data <= (average float, median int, mode int){
-        average => println();
-        median => println();
-        mode => println(); 
+node print_data <= (average1 float, median1 int, mode1 int){
+        average1 => println();
+        median1 => println();
+        mode1 => println(); 
 }
