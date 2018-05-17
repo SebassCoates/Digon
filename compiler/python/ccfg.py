@@ -102,7 +102,7 @@ def connect_graph(nodeList):
                         if neighbor == 'dest':
                                 pass
 
-        print([node.neighbors for node in linked])
+        #print([node.neighbors for node in linked])
         return linked
 
 # Builds colored control flow graph (CCFG)

@@ -9,7 +9,7 @@ node root {
         str := "hello world";
 
         x => addTwo(f) => println();
-        y => addTwo(g) => println();
+        6 => addTwo(g) => println();
 }
 
 node takesParams <= (a [10]int, b char, c[][5]byte) {

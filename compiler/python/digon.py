@@ -26,7 +26,7 @@
 
 from sys import argv #command line args
 from node import *   #node definition
-from ccfg import *   #CCFG definition
+import ccfg as CCFG #definition
 from lexer import lex
 from parser import parse
 import errors as err
@@ -44,9 +44,9 @@ def process_file(filename):
     try:
         filetext = open(filename, 'r').read()
     except:
-        err.invalid_file(filename)
+        err.invalid_file(filename) #errors.py
 
-    nodeList = parse(lex(filetext))
+    nodeList = parse(lex(filetext)) #lexer.py, parser.py
     
     return nodeList
 
@@ -65,7 +65,7 @@ allNodes = []
 for file in parsedFiles:
     allNodes += parsedFiles[file]
 
-linked = connect_graph(allNodes)
-ccfg = build_CCFG(linked)
+linked = CCFG.connect_graph(allNodes)
+ccfg = CCFG.build_CCFG(linked)
 
-write_graph(ccfg)
+CCFG.write_graph(ccfg) #for debugging
