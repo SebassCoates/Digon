@@ -34,24 +34,12 @@ from node   import *
 # Returns: 
 #       parsed - lexed, parsed plaintext as dictionary {node ID --> node struct}
 #
-
-
 def parse(lexedFile):
-    
-    #print lexedFile;
-
-
     lexedFile =  [j for i in lexedFile for j in i];
-
-    #print lexedFile;
-    
     names = [];
-
     nodes = [];
     indices = [i for i, x in enumerate(lexedFile) if x == "node"];
-
     length = len(lexedFile);
-
     indices.append(length);
 
     for i in range(len(indices) - 1):
@@ -59,12 +47,10 @@ def parse(lexedFile):
         nod = create_node(lexedFile[n + 1]);
         names.append(nod.name);
         
-        
         if lexedFile[n + 2] == "<":        # node has params
             paramS = n + 5;                 # strt of params
             params = [];
             end = lexedFile[paramS:].index(")");        # where params end
-
 
             n = end + paramS + 2;       # set n to first index of code
             while True:                                 # get up to last param
@@ -78,7 +64,6 @@ def parse(lexedFile):
 
             # get last param
             params.append(" ".join(lexedFile[paramS:paramS + end]));
-
             nod.params = params;
         else:
             nod.params = "";
@@ -88,32 +73,35 @@ def parse(lexedFile):
 
         nodes.append(nod);
 
-
+    node_dict = {}
+    for nod in nodes:
+        node_dict[nod.name] = nod
+        nod.neighbors = set()
         
     for nod in nodes:
         li = nod.sourceCode;
-        neighbors = [];
         i = 0;
         while i < len(li):
-            if li[i] == "=" and li[i + 1] == ">" and li[i + 2] == "(" and li[i + 4] == ")":
-                neighbors.append(li[i + 3]);
-                i += 5;
+            if li[i] == "=" and li[i + 1] == ">" and li[i + 2] != 'dest':
+                neighbor = li[i + 2]
+                nod.neighbors.add(neighbor);
+                
+                while(li[i] != ')'): #Parser guarantees this will happen
+                    i += 1
+                try:
+                    if li[i + 1] == "=" and li[i + 2] == ">" and li[i + 3] != 'dest' and li[i + 4] == '(':
+                        node_dict[neighbor].neighbors.add(li[i + 3]);
+                        i += 1
+                except:
+                    print("Unknown node: " + neighbor)
             i += 1;
-        nod.neighbors = neighbors;
 
-
-
-
-
-            
+    #Debug print
     #for nod in nodes:
-    #    print "name";
-    #    print nod.name;
-    #    print "params";
-    #    print nod.params;
-    #    print "sc";
-    #    print nod.sourceCode;
-    #    print "neighbors";
-    #    print nod.neighbors;
+    #    print(nod.name)
+    #    print(nod.params)
+    #    print(nod.sourceCode)
+    #    print(nod.neighbors)
+    #    print()
     
     return nodes;

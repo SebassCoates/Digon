@@ -576,36 +576,26 @@ def update_state(state, token):
 
         if state.currentState == "NEUTRAL":
                 return state, process_neutral(state, token, grammarError)
-
         elif state.currentState == "NODE_DECLARED":
                 return state, process_node_declared(state, token, grammarError)
-
         elif state.currentState == "DEFINING_NODE":
                 return state, process_defining_node(state, token, grammarError)
-                
         elif state.currentState == "READING_PARAMS":
                 return state, process_reading_params(state, token, grammarError)
-                
         elif state.currentState == "DEFINING_VAR":
                 return state, process_defining_var(state, token, grammarError)
-
         elif state.currentState == "EXPECTING_=":
                 return state, process_expecting_equals(state, token, grammarError)
-
         elif state.currentState == "ASSINGING_TO_VAR":
                 return state, process_assigning_to_var(state, token, grammarError)
-
         elif state.currentState == "FOR_LOOP_DECLARED":
                 return state, process_for_loop_declared(state, token, grammarError)
-
         elif state.currentState == "LINKING_NODE":
                 return state, process_linking_node(state, token, grammarError)
-
         elif token == ';' and state.currentState != "NEUTRAL":
                 grammarError = ('error', "Got ';' before expected end of line")
                 state.currentState = "NEUTRAL"
-        
-        else: #default case, when finished, should not trigger
+        else: #default case. when finished, should not trigger
                 state.currentState = "NEUTRAL"
         
         return state, grammarError

@@ -67,5 +67,4 @@ for file in parsedFiles:
 
 linked = CCFG.connect_graph(allNodes)
 ccfg = CCFG.build_CCFG(linked)
-
 CCFG.write_graph(ccfg) #for debugging

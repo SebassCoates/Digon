@@ -30,7 +30,7 @@ from node import * #defines node 'struct'
 ############################## PRIVATE CONSTANTS ###############################
 COLORS = set(open('colors.txt', 'r').read().split())
 
-BUILT_IN_NODES = {'dest', 'length', 'print'}
+BUILT_IN_NODES = {'dest', 'length', 'println'}
 
 ############################## PRIVATE FUNCTIONS ###############################
 # Builds graph using list of nodes
@@ -77,7 +77,8 @@ def color_graph(adjList, nodeList):
                                         colors[childIndex] = newColor
                                         nodeQ.append(childIndex)
                                         visited[childIndex] = True
-                                        nodes.remove(childIndex)
+                                        if len(nodes) > 0:
+                                                nodes.remove(childIndex)
                         COLORS.add(colors[node])
                         COLORS.add(newColor)
 
