@@ -27,6 +27,8 @@
 from errors import *
 from node   import *
 
+builtinFunctions = ['length', 'println']
+
 # Parses file, reports warnings and errors.
 # Params:
 #       lexedFile - lexed plaintext of file as list of tokens 
@@ -84,16 +86,25 @@ def parse(lexedFile):
         while i < len(li):
             if li[i] == "=" and li[i + 1] == ">" and li[i + 2] != 'dest':
                 neighbor = li[i + 2]
-                nod.neighbors.add(neighbor);
+                nod.neighbors.add(neighbor)
+                if neighbor not in builtinFunctions:
+                    node_dict[neighbor].ancestors.add(nod.name) #err on built-in funcs
                 
                 while(li[i] != ')'): #Parser guarantees this will happen
                     i += 1
-                try:
+                if neighbor not in builtinFunctions:
                     if li[i + 1] == "=" and li[i + 2] == ">" and li[i + 3] != 'dest' and li[i + 4] == '(':
-                        node_dict[neighbor].neighbors.add(li[i + 3]);
+                        node_dict[neighbor].dest = li[i + 3];
+                        destParam = li[i + 5]
+                        for param in node_dict[li[i + 3]].params:
+                            if destParam in param:
+                                paramType = param.split()[1:]
+                                for part in paramType:
+                                    node_dict[neighbor].destType += part 
+
+                        node_dict[li[i + 3]].ancestors.add(neighbor)
                         i += 1
-                except:
-                    print("Unknown node: " + neighbor)
+
             i += 1;
 
     #Debug print
@@ -102,6 +113,9 @@ def parse(lexedFile):
     #    print(nod.params)
     #    print(nod.sourceCode)
     #    print(nod.neighbors)
+    #    print(nod.ancestors)
+    #    print(nod.dest)
+    #    print(nod.destType)
     #    print()
     
     return nodes;

@@ -39,7 +39,10 @@ class Node:
         self.name = name
         self.sourceCode = sourceCode
         self.neighbors = neighbors
+        self.ancestors = set()
         self.color = color
+        self.dest = ''
+        self.destType = ''
 
 # Creates instance of node struct
 # Params:

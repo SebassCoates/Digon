@@ -25,11 +25,15 @@
 ################################################################################
 
 from sys import argv #command line args
+from os import remove as remove_file
+from subprocess import Popen
+
 from node import *   #node definition
 import ccfg as CCFG #definition
 from lexer import lex
 from parser import parse
 import errors as err
+import transpiler as tr
 
 
 # Processes file to be ready for compilation. Takes lexed, parsed, filetext and
@@ -50,6 +54,60 @@ def process_file(filename):
     
     return nodeList
 
+# Writes go files corresponding to digon code to be compiled 
+# Params:
+#       ccfg - 
+# 
+# Returns: 
+#       List of go file names created
+#
+def generate_go(ccfg):
+    builtinFunctions = ['length', 'println']
+
+    file = open('gomain.go', 'w')
+    gosource = 'package main\n\nimport "fmt"\n\n'
+    adjList, colors, nodes = ccfg
+
+    for node in nodes:
+        if node.name == "root": #Need a main function in Go!
+            node.name = "main"
+
+        gosource += "func " + node.name + "(" #Function headers
+        assignments = []
+        for i, param in enumerate(node.params):
+            param = param.replace('float', 'float64')
+            if len(node.ancestors) > 1:
+                parts = param.split()
+                assignments.append(parts[0])
+                parts[0] = parts[0] + "chan"
+                parts.insert(1, "chan")
+                for part in parts:
+                    gosource += part + " "
+            else:
+                gosource += param
+            if i != len(node.params) - 1:
+                gosource += ", " 
+
+        if node.dest != '':
+            gosource += ", channel chan " + node.destType
+
+        gosource += ') {\n'
+
+        for ass in assignments:
+            gosource += ass + " <- " + ass + "chan;\n"
+
+        tr.transpile_to_go(node.sourceCode, node) #fix syntax diffs, func calls IN PLACE
+
+        for token in node.sourceCode: #add source code, with extra spacing to be safe
+                gosource +=  token
+                if ';' in token or token == '{' or token == "}":
+                    gosource += '\n'
+        gosource += "}\n\n"
+    
+    print(gosource) #debug
+    file.write(gosource)
+    return ['gomain.go']
+
 
 ################################### MAIN #######################################
 parsedFiles = {}
@@ -59,7 +117,7 @@ for filename in argv[1:]:
         err.invalid_file_extension(filename)
 
     parsedFiles[filename] = process_file(filename) 
-err.quit_if_error()
+#err.quit_if_error() #disable while lexer is incomplete
 
 allNodes = []
 for file in parsedFiles:
@@ -67,4 +125,13 @@ for file in parsedFiles:
 
 linked = CCFG.connect_graph(allNodes)
 ccfg = CCFG.build_CCFG(linked)
-CCFG.write_graph(ccfg) #for debugging
+#CCFG.write_graph(ccfg) #for debugging
+
+filenames = generate_go(ccfg)
+try:
+    Popen(['go', 'build'])
+except:
+    print("Final compilation failed. Perhaps Go is not properly installed on your system.")
+
+#for file in filenames:
+#    remove_file(file) #os.remove()

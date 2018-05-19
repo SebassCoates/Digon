@@ -11,22 +11,22 @@ node calculate_stats <= (data []int){
 
 node mean <= (data1 []int) {
         average := 0.0;
-        for (i, elem) in data {
+        for i, elem in data1 {
                 average += elem;
         }
 
         length := 0;
-        data => length() => length;
+        data1 => length() => length;
         average / length => dest();
 }
 
 node median <= (data2 []int) {
-        for (i, elem) in data {
-                for j in data[i:1:-1] {
-                        if data[j] < data[j - 1] {
-                                temp := data[j - 1];
-                                data[j - 1] = data[j];
-                                data[j] = temp;
+        for i, elem in data2 {
+                for j, _ in data2[i:1:-1] {
+                        if data2[j] < data2[j - 1] {
+                                temp := data2[j - 1];
+                                data2[j - 1] = data2[j];
+                                data2[j] = temp;
                         } else {
                                 break;
                         }
@@ -34,25 +34,25 @@ node median <= (data2 []int) {
         }
 
         length := 0;
-        data => length() => length;
-        data[length / 2] => dest();
+        data2 => length() => length;
+        data2[length / 2] => dest();
 }
 
 node mode <= (data3 []int) {
         m := map<int, int>;
 
-        for (index, elem) in data {
-                (value, valid) = map[elem];
+        for index, elem in data3 {
+                (value, valid) = m[elem];
                 if !valid {
-                        map[elem] = 1;
+                        m[elem] = 1;
                 } else {
-                        map[elem] += 1;
+                        m[elem] += 1;
                 }
         }
 
         highest := 0;
         mode := 0;
-        for (key, value) in map {
+        for key, value in m {
                 if value > highest {
                         mode = key;
                         highest = value;
