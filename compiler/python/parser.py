@@ -95,20 +95,24 @@ def define_relationships(nodes):
                 
                 while(li[i] != ')'): #Parser guarantees this will happen
                     i += 1
-                if neighbor not in builtinFunctions:
-                    if li[i + 1] == "=" and li[i + 2] == ">" and li[i + 3] != 'dest' and li[i + 4] == '(':
-                        node_dict[neighbor].dest = li[i + 3];
-                        destParam = li[i + 5]
-                        for param in node_dict[li[i + 3]].params:
-                            if destParam in param:
-                                paramType = param.split()[1:]
-                                for part in paramType:
-                                    if part == 'float':
-                                        part += '64'
-                                    node_dict[neighbor].destType += part 
 
-                        node_dict[li[i + 3]].ancestors.add(neighbor)
-                        i += 1
+                if neighbor not in builtinFunctions:
+                    
+                    if li[i + 1] == "=" and li[i + 2] == ">" \
+                        and li[i + 3] != 'dest' and li[i + 4] == '(':
+                        
+                            node_dict[neighbor].dest = li[i + 3];
+                            destParam = li[i + 5]
+                            for param in node_dict[li[i + 3]].params:
+                                if destParam in param:
+                                    paramType = param.split()[1:]
+                                    for part in paramType:
+                                        if part == 'float':
+                                            part += '64'
+                                        node_dict[neighbor].destType += part 
+
+                            node_dict[li[i + 3]].ancestors.add(neighbor)
+                            i += 1
 
             i += 1;
 
@@ -163,5 +167,5 @@ def parse(lexedFile):
     initialize_nodes(nodeIndices, lexedFile, nodes, names)
     define_relationships(nodes)
     
-    print_nodes(nodes)
+    #print_nodes(nodes)
     return nodes;

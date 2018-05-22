@@ -41,12 +41,12 @@ class LexerState:
 
         def reset(self):
                 self.currentState = "NEUTRAL"
-                self.parenStack   = [] #for grammar check
-                self.bracketStack = [] #for grammar check
-                self.braceStack   = [] #for grammar check
-                self.variables    = set() #for grammar check
-                self.nodes        = set() #for grammar check
-                self.existingVar  = False #for grammar check
+                self.parenStack   = []
+                self.bracketStack = []
+                self.braceStack   = []
+                self.variables    = set()
+                self.nodes        = set()
+                self.existingVar  = False
                 self.expectingEquals = False
                 self.expectingBrace = False
                 self.expectingType = False

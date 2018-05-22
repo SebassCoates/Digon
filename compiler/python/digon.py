@@ -97,14 +97,16 @@ def generate_go(ccfg):
         for ass in assignments:
             gosource += ass + " := <- " + ass + "chan;\n"
 
-        tr.transpile_to_go(node.sourceCode, node, ccfg.nodes) #fix syntax diffs, func calls IN PLACE
+        tr.transpile_to_go(node.sourceCode, node, ccfg.nodes) #modifies in place
 
-        for i, token in enumerate(node.sourceCode): #add source code, with extra spacing to be safe
+        for i, token in enumerate(node.sourceCode): 
                 gosource +=  token
                 if ';' in token or token == '{' and node.sourceCode[i - 1] not in types:
                     gosource += '\n'
-                if token == '}' and i < len(node.sourceCode) - 1 and node.sourceCode[i + 1] != 'else':
+                if token == '}' and i < len(node.sourceCode) - 1 \
+                                and node.sourceCode[i + 1] != 'else':
                     gosource += '\n'
+
         gosource += "}\n\n"
     
     #print(gosource) #debug
@@ -120,13 +122,12 @@ for filename in argv[1:]:
         err.invalid_file_extension(filename)
 
     parsedFiles[filename] = process_file(filename) 
-#err.quit_if_error() #disable while lexer is incomplete
+#err.quit_if_error() #disable while lexer is incomplete/buggy to test compile
 
 allNodes = []
 for file in parsedFiles:
     allNodes += parsedFiles[file]
 
-#ccfg = CCFG.build_CCFG(allNodes)
 ccfg = Graph(allNodes)
 ccfg.write_graph() #for debugging
 

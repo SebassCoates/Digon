@@ -32,12 +32,19 @@ COLORS = set(open('colors.txt', 'r').read().split())
 
 BUILT_IN_NODES = {'dest', 'length', 'println'} #TODO: replace with SPoT
 
-#General graph class for storing graph coloring and more
+#General graph class for representing CCFG. Contains additional useful info
 class Graph:
+        ######################### INTERFACE FUNCTIONS ##########################
+        #Initialize basic members: adjList, colors, list of nodes
         def __init__(self, nodes):
                 self.adjList, self.colors, self.nodes = self.build_CCFG(nodes)
 
-        ######################### INTERFACE FUNCTIONS ##########################
+                #Allows direct access nodes by name
+                self.nodesByName = {}
+                for nod in nodes:
+                        self.nodesByName[nod.name] = nod
+                        nod.neighbors = set()
+
         # Writes graph data to Graph Viewer compatible files
         # Params:
         #       ccfg - CCFG tuple representation (adjList, colors, nodeList)
@@ -48,22 +55,30 @@ class Graph:
         #       ccfg_colors.txt - colors for ccfg       
         #
         def write_graph(self):
-                graphfile = open('ccfg.txt', 'w')
-                labelfile = open('ccfg_labels.txt', 'w')
-                colorfile = open('ccfg_colors.txt', 'w')
+                try:
+                        graphfile = open('ccfg.txt', 'w')
+                        labelfile = open('ccfg_labels.txt', 'w')
+                        colorfile = open('ccfg_colors.txt', 'w')
+                except:
+                        print("Couldn't open graph files for writing CCFG data")
 
                 adjList  = self.adjList
                 colors   = self.colors
                 nodeList = self.nodes
 
                 for i, node in enumerate(nodeList):
-                        indexedLabels = [n.name for n in nodeList]
-                        neighborIndices = [indexedLabels.index(n) for n in node.neighbors if n in adjList[i] and n in indexedLabels]
+                        dest = node.dest
+
+                        labels = [n.name for n in nodeList] #indexed labels
+                        
+                        neighborIndices = [labels.index(n) \
+                                for n in node.neighbors \
+                                if n in adjList[i] and n in labels]
 
                         for j in range(len(adjList)):
                                 if j in neighborIndices:
                                         graphfile.write('1 ')
-                                elif node.dest != '' and j == indexedLabels.index(node.dest):
+                                elif dest != '' and j == labels.index(dest):
                                         graphfile.write('1 ')
                                 else:
                                         graphfile.write('0 ')
@@ -77,6 +92,7 @@ class Graph:
                 graphfile.close()
                 labelfile.close()
                 colorfile.close()
+
 
         ########################## PRIVATE FUNCTIONS ###########################
         # Builds graph using list of nodes
@@ -127,7 +143,6 @@ class Graph:
                                                         nodes.remove(childIndex)
                                 COLORS.add(colors[node])
                                 COLORS.add(newColor)
-
                 return colors
 
         # Builds colored control flow graph (CCFG)
