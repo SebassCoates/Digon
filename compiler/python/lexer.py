@@ -298,7 +298,7 @@ def process_reading_params(state, token, grammarError):
         elif token == "(":
                 state.parenStack.append(1)
         elif is_int(token, state):
-                if not expectingInt:
+                if not state.expectingInt:
                         grammarError = ('error', "Expecting int but got '" + token + "'")
                 else:
                         state.expectingInt = False

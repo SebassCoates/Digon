@@ -3,26 +3,29 @@ node root {
         array => calculate_stats(data);
 }
 
-node calculate_stats <= (data []int){
+node calculate_stats <= (data [10]int){
         data => mean() => print_data(average);
         data => median() => print_data(median);
         data => mode() => print_data(mode);
 }
 
-node mean <= (data1 []int) {
+node mean <= (data1 [10]int) {
         average := 0.0;
-        for i, elem in data1 {
-                average += elem;
+        for _, elem in data1 {
+                average += float64(elem);
         }
 
         length := 0;
         data1 => length() => length;
-        average / length => dest();
+        average / float64(length) => dest();
 }
 
-node median <= (data2 []int) {
-        for i, elem in data2 {
-                for j, _ in data2[i:1:-1] {
+node median <= (data2 [10]int) {
+        length := 0;
+        data2 => length() => length;
+
+        for i, _ in data2 {
+                for j := i; j > 1; j-- {
                         if data2[j] < data2[j - 1] {
                                 temp := data2[j - 1];
                                 data2[j - 1] = data2[j];
@@ -33,16 +36,14 @@ node median <= (data2 []int) {
                 }
         }
 
-        length := 0;
-        data2 => length() => length;
         data2[length / 2] => dest();
 }
 
-node mode <= (data3 []int) {
+node mode <= (data3 [10]int) {
         m := map<int, int>;
 
-        for index, elem in data3 {
-                (value, valid) = m[elem];
+        for _, elem in data3 {
+                _, valid := m[elem];
                 if !valid {
                         m[elem] = 1;
                 } else {

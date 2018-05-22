@@ -28,12 +28,16 @@
 # Params:
 #       sourcecode - Parsed Digon source code by line (list of string lists)
 #
-def change_syntax(sourcecode, node):
+def change_syntax(sourcecode, node, nodes):
         #ensure appropriate whitespace, simple syntax changes
         explicitChildren = set([token for token in sourcecode if token in node.neighbors])
 
         for i, token in enumerate(sourcecode):
                 if token == 'in':
+                        if sourcecode[i - 1] == ")":
+                                sourcecode[i - 1] = ""
+                                if sourcecode[i - 5] == "(":
+                                        sourcecode[i - 5] = ""
                         sourcecode[i] = " := range "
                 elif token == "println":
                         sourcecode[i] = "fmt.Println"
@@ -50,12 +54,22 @@ def change_syntax(sourcecode, node):
                         sourcecode[i + 5] = ")"
 
 
+def function_channel_types(nodes):
+        channels = {}
+        for node in nodes:
+                if node.destType != '':
+                        channels[node.name] = node.destType
+
+        return channels
 
 # Changes Digon syntax to Go equivalent, or adds appropriate spacing
 # Params:
 #       sourcecode - Parsed Digon source code by line (list of string lists)
 #
-def transpile_function_calls(sourcecode, node):
+def transpile_function_calls(sourcecode, node, nodes):
+        destinations = {}
+        destTypes = function_channel_types(nodes)
+
         for i, token in enumerate(sourcecode):
                 if token == '=' and sourcecode[i + 1] == ">":
                          #get lval
@@ -74,10 +88,14 @@ def transpile_function_calls(sourcecode, node):
                                 sourcecode[i + 3] = "" #replace (
                                 sourcecode[i + 4] = "" #replace )
                         else: 
-                                sourcecode[i - 1] = sourcecode[i + 2] #function name
+                                fname = sourcecode[i + 2] #function name
+                                sourcecode[i - 1] = fname
                                 if sourcecode[i - 1] == "length":
                                         sourcecode[i - 1] = "len"
                                 sourcecode[i] = '('
+                                if destTypes.get(fname) != None:
+                                        param += ', ' + fname + "Channel"
+
                                 sourcecode[i + 1] = param
                                 sourcecode[i + 2] = ')'
                                 i += 3
@@ -87,8 +105,7 @@ def transpile_function_calls(sourcecode, node):
                                 sourcecode[i] = ""
                                 i += 1
 
-                                if sourcecode[i] == '=':
-                                        #check if assignment or pass on node
+                                if sourcecode[i] == '=': #check if assignment or pass-on node
                                         if sourcecode[i + 3] != '(': #assignment
                                                 sourcecode[leftindex] = sourcecode[i + 2] + " = " + sourcecode[leftindex]
                                                 sourcecode[i] = ""
@@ -96,13 +113,31 @@ def transpile_function_calls(sourcecode, node):
                                                 sourcecode[i + 2] = ""
                                                 i += 3
                                         else:
+                                                sourcecode[leftindex] = "go " + sourcecode[leftindex]
                                                 while sourcecode[i] != ")":
+                                                        if sourcecode[i + 1] == "(":
+                                                                if destinations.get(sourcecode[i]) == None:
+                                                                        destinations[sourcecode[i]] = []
+
+                                                                sourcecode[leftindex] = fname + "Channel := make(chan " \
+                                                                + destTypes[fname] + ")\n" + sourcecode[leftindex]
+                                                                
+                                                                destinations[sourcecode[i]].append(fname + "Channel")
                                                         sourcecode[i] = ""
                                                         i += 1
                                                 sourcecode[i] = ""
                 else:
                         pass
                        #print(token, end=" ")
+        
+        for dest in destinations:
+                funcode = "\n" + dest + "("
+                for i, channel in enumerate(destinations[dest]):
+                        funcode += channel
+                        if i != len(destinations[dest]) - 1:
+                                funcode += ", "
+                funcode += ");\n"
+                sourcecode.append(funcode)
 
 
 ################################## INTERFACE ###################################
@@ -113,6 +148,6 @@ def transpile_function_calls(sourcecode, node):
 # Returns: 
 #       transpiled - Transpiled code in same form
 #
-def transpile_to_go(sourcecode, node):
-        change_syntax(sourcecode, node)        
-        transpile_function_calls(sourcecode, node)
+def transpile_to_go(sourcecode, node, nodes):
+        change_syntax(sourcecode, node, nodes)        
+        transpile_function_calls(sourcecode, node, nodes)

@@ -30,7 +30,7 @@ from subprocess import Popen
 
 from node import *   #node definition
 import ccfg as CCFG #definition
-from lexer import lex
+from lexer import lex, types
 from parser import parse
 import errors as err
 import transpiler as tr
@@ -68,7 +68,7 @@ def generate_go(ccfg):
     gosource = 'package main\n\nimport "fmt"\n\n'
     adjList, colors, nodes = ccfg
 
-    for node in nodes:
+    for node in nodes: #TODO: Replace with BFS?
         if node.name == "root": #Need a main function in Go!
             node.name = "main"
 
@@ -94,13 +94,15 @@ def generate_go(ccfg):
         gosource += ') {\n'
 
         for ass in assignments:
-            gosource += ass + " <- " + ass + "chan;\n"
+            gosource += ass + " := <- " + ass + "chan;\n"
 
-        tr.transpile_to_go(node.sourceCode, node) #fix syntax diffs, func calls IN PLACE
+        tr.transpile_to_go(node.sourceCode, node, nodes) #fix syntax diffs, func calls IN PLACE
 
-        for token in node.sourceCode: #add source code, with extra spacing to be safe
+        for i, token in enumerate(node.sourceCode): #add source code, with extra spacing to be safe
                 gosource +=  token
-                if ';' in token or token == '{' or token == "}":
+                if ';' in token or token == '{' and node.sourceCode[i - 1] not in types:
+                    gosource += '\n'
+                if token == '}' and i < len(node.sourceCode) - 1 and node.sourceCode[i + 1] != 'else':
                     gosource += '\n'
         gosource += "}\n\n"
     

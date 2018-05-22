@@ -100,6 +100,8 @@ def parse(lexedFile):
                             if destParam in param:
                                 paramType = param.split()[1:]
                                 for part in paramType:
+                                    if part == 'float':
+                                        part += '64'
                                     node_dict[neighbor].destType += part 
 
                         node_dict[li[i + 3]].ancestors.add(neighbor)
