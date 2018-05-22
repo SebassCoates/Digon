@@ -29,23 +29,17 @@ from node   import *
 
 builtinFunctions = ['length', 'println']
 
-# Parses file, reports warnings and errors.
-# Params:
-#       lexedFile - lexed plaintext of file as list of tokens 
-# 
-# Returns: 
-#       parsed - lexed, parsed plaintext as dictionary {node ID --> node struct}
-#
-def parse(lexedFile):
-    lexedFile =  [j for i in lexedFile for j in i];
-    names = [];
-    nodes = [];
-    indices = [i for i, x in enumerate(lexedFile) if x == "node"];
-    length = len(lexedFile);
-    indices.append(length);
 
-    for i in range(len(indices) - 1):
-        n = indices[i];
+# Initialize nodes with names and sourcecode
+# Params:
+#       nodeIndices - indices of node keyword
+#       lexedFile - content of source file as list of tokens
+#       nodes - empty list of node objects to be added to
+#       names - list of names of nodes
+#
+def initialize_nodes(nodeIndices, lexedFile, nodes, names):
+    for i in range(len(nodeIndices) - 1):
+        n = nodeIndices[i];
         nod = create_node(lexedFile[n + 1]);
         names.append(nod.name);
         
@@ -70,11 +64,20 @@ def parse(lexedFile):
         else:
             nod.params = "";
             n += 3;
-        #nod.sourceCode = ' '.join(lexedFile[n:indices[i + 1] - 1]);
-        nod.sourceCode = lexedFile[n:indices[i + 1] - 1];
+
+        nod.sourceCode = lexedFile[n:nodeIndices[i + 1] - 1];
 
         nodes.append(nod);
 
+
+# Define ancestor / descendant (neighbor) relationships between nodes
+# Params:
+#       nodeIndices - indices of node keyword
+#       lexedFile - content of source file as list of tokens
+#       nodes - empty list of node objects to be added to
+#       names - list of names of nodes
+#
+def define_relationships(nodes):
     node_dict = {}
     for nod in nodes:
         node_dict[nod.name] = nod
@@ -109,15 +112,56 @@ def parse(lexedFile):
 
             i += 1;
 
-    #Debug print
-    #for nod in nodes:
-    #    print(nod.name)
-    #    print(nod.params)
-    #    print(nod.sourceCode)
-    #    print(nod.neighbors)
-    #    print(nod.ancestors)
-    #    print(nod.dest)
-    #    print(nod.destType)
-    #    print()
+
+# Prints all node info
+# Params:
+#       nodes - list of node objects
+#
+#
+def print_nodes(nodes):
+    for nod in nodes:
+        print(nod.name)
+
+        print('Params:\t', end="")
+        print(nod.params)
+
+        print('sourceCode:\t', end="")
+        print(nod.sourceCode)
+
+        print('neighbors:\t', end="")
+        print(nod.neighbors)
     
+        print('ancestors:\t', end="")
+        print(nod.ancestors)
+    
+        print('dest:\t', end="")
+        print(nod.dest)
+    
+        print('destType:\t', end="")
+        print(nod.destType)
+
+        print()
+
+
+################################## INTERFACE ###################################
+
+# Parses file, reports warnings and errors.
+# Params:
+#       lexedFile - lexed plaintext of file as list of tokens 
+# 
+# Returns: 
+#       parsed - lexed, parsed plaintext as dictionary {node ID --> node struct}
+#
+def parse(lexedFile):
+    lexedFile =  [j for i in lexedFile for j in i];
+    names = [];
+    nodes = [];
+    nodeIndices = [i for i, x in enumerate(lexedFile) if x == "node"];
+    length = len(lexedFile);
+    nodeIndices.append(length);
+
+    initialize_nodes(nodeIndices, lexedFile, nodes, names)
+    define_relationships(nodes)
+    
+    #print_nodes(nodes)
     return nodes;

@@ -106,7 +106,7 @@ def generate_go(ccfg):
                     gosource += '\n'
         gosource += "}\n\n"
     
-    print(gosource) #debug
+    #print(gosource) #debug
     file.write(gosource)
     return ['gomain.go']
 
@@ -131,9 +131,10 @@ ccfg = CCFG.build_CCFG(linked)
 
 filenames = generate_go(ccfg)
 try:
+    Popen(['go', 'fmt'])
     Popen(['go', 'build'])
 except:
     print("Final compilation failed. Perhaps Go is not properly installed on your system.")
 
-#for file in filenames:
+#for file in filenames: #clean up intermediary .go files
 #    remove_file(file) #os.remove()
