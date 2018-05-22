@@ -163,5 +163,5 @@ def parse(lexedFile):
     initialize_nodes(nodeIndices, lexedFile, nodes, names)
     define_relationships(nodes)
     
-    #print_nodes(nodes)
+    print_nodes(nodes)
     return nodes;

@@ -30,6 +30,7 @@ from subprocess import Popen
 
 from node import *   #node definition
 import ccfg as CCFG #definition
+from ccfg import Graph
 from lexer import lex, types
 from parser import parse
 import errors as err
@@ -56,7 +57,7 @@ def process_file(filename):
 
 # Writes go files corresponding to digon code to be compiled 
 # Params:
-#       ccfg - 
+#       ccfg - graph object for source code
 # 
 # Returns: 
 #       List of go file names created
@@ -66,9 +67,9 @@ def generate_go(ccfg):
 
     file = open('gomain.go', 'w')
     gosource = 'package main\n\nimport "fmt"\n\n'
-    adjList, colors, nodes = ccfg
+    #adjList, colors, nodes = ccfg
 
-    for node in nodes: #TODO: Replace with BFS?
+    for node in ccfg.nodes: #TODO: Replace with BFS?
         if node.name == "root": #Need a main function in Go!
             node.name = "main"
 
@@ -96,7 +97,7 @@ def generate_go(ccfg):
         for ass in assignments:
             gosource += ass + " := <- " + ass + "chan;\n"
 
-        tr.transpile_to_go(node.sourceCode, node, nodes) #fix syntax diffs, func calls IN PLACE
+        tr.transpile_to_go(node.sourceCode, node, ccfg.nodes) #fix syntax diffs, func calls IN PLACE
 
         for i, token in enumerate(node.sourceCode): #add source code, with extra spacing to be safe
                 gosource +=  token
@@ -125,9 +126,9 @@ allNodes = []
 for file in parsedFiles:
     allNodes += parsedFiles[file]
 
-linked = CCFG.connect_graph(allNodes)
-ccfg = CCFG.build_CCFG(linked)
-#CCFG.write_graph(ccfg) #for debugging
+#ccfg = CCFG.build_CCFG(allNodes)
+ccfg = Graph(allNodes)
+ccfg.write_graph() #for debugging
 
 filenames = generate_go(ccfg)
 try:
