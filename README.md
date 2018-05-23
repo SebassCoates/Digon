@@ -32,8 +32,11 @@ enough in catching syntax errors.
 <li> Python or Python3 </li>
 <li> Go </li>
 </ul>
-### Usage
-`python3 digon.py [.di files]`
+
+### Usage  
+```
+python3 digon.py [.di files]
+```
 
 ## Current Objectives
 ### Syntax / Lexer
