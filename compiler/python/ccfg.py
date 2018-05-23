@@ -45,6 +45,12 @@ class Graph:
                         self.nodesByName[nod.name] = nod
                         nod.neighbors = set()
 
+                #For concurrent nodes, hash channel names to type for Go source
+                self.channels = {}
+                for node in nodes:
+                        if node.destType != '':
+                                self.channels[node.name] = node.destType
+
         # Writes graph data to Graph Viewer compatible files
         # Params:
         #       ccfg - CCFG tuple representation (adjList, colors, nodeList)

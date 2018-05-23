@@ -97,7 +97,7 @@ def generate_go(ccfg):
         for ass in assignments:
             gosource += ass + " := <- " + ass + "chan;\n"
 
-        tr.transpile_to_go(node.sourceCode, node, ccfg.nodes) #modifies in place
+        tr.transpile_to_go(node, ccfg) #modifies in place
 
         for i, token in enumerate(node.sourceCode): 
                 gosource +=  token
