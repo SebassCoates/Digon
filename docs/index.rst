@@ -22,3 +22,4 @@ Contents
    guide.rst
    compiling.rst
    faq.rst
+   contributing.rst
